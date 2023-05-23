@@ -1,7 +1,7 @@
 import sys
 import sqlite3
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLineEdit, QSizePolicy
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QWheelEvent
 
 
@@ -49,8 +49,8 @@ class MyWindow(QMainWindow):
         text_input.setFixedSize(100, 100)
         self.layout.addWidget(text_input, self.field_row, self.field_col)
 
-        # Connect the returnPressed signal to the save_text_input method
-        text_input.returnPressed.connect(self.save_text_input)
+        # Connect the focusOut signal to the save_text_input method
+        text_input.focusOut.connect(self.save_text_input)
 
         # Set the initial task name if provided
         if task_name:
@@ -82,12 +82,14 @@ class MyWindow(QMainWindow):
 
 
 class CustomLineEdit(QLineEdit):
+    focusOut = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.color = "white"
 
     def wheelEvent(self, event: QWheelEvent):
-        colors = ["green", "yellow", "red", "white" ]
+        colors = ["green", "yellow", "red", "white"]
         current_color_index = colors.index(self.color)
         new_color_index = (current_color_index + 1) % len(colors)
         self.set_color(colors[new_color_index])
@@ -102,6 +104,9 @@ class CustomLineEdit(QLineEdit):
             self.setStyleSheet("background-color: yellow;")
         else:
             self.setStyleSheet("background-color: white;")
+
+    def focusOutEvent(self, event):
+        self.focusOut.emit()
 
 
 app = QApplication(sys.argv)
