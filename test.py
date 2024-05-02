@@ -16,6 +16,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPl
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QStyleFactory
 from  PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QTextCursor, QColor
+from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QColor, QTextCursor, QTextCharFormat, QFont, QWheelEvent
 
 class MyWindow(QMainWindow):
     def __init__(self):
@@ -111,11 +115,11 @@ class MyWindow(QMainWindow):
 
 
     def _routine_task(self):
-        self.set_unread_email_count()
+        #self.set_unread_email_count() its very slow. 
         self.update_current_time()
         self.update_countdown()
         self.update_countup()
-        self.update_next_meeting_time()
+        #self.update_next_meeting_time()
 
 
     def keyPressEvent(self, event):
@@ -215,15 +219,13 @@ class MyWindow(QMainWindow):
         self.countup_button.setText(str(self.countup_counter))
         self.countup_counter += 1
 
-
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton and event.modifiers() == Qt.AltModifier:
             self.add_text_input_field()
         elif event.button() == Qt.RightButton:
             sender = self.sender()
             if isinstance(sender, CustomLineEdit):
                 self.delete_text_input(sender)
-
 
     def delete_text_input(self, uid):
         sender = self.sender()
@@ -240,7 +242,7 @@ class MyWindow(QMainWindow):
     def add_text_input_field(self, task_name=None):
         text_input = CustomLineEdit()
         text_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        text_input.setFixedSize(100, 100)
+        text_input.setFixedSize(200, 200)
         self.layout.addWidget(text_input, self.field_row, self.field_col)
 
         # Connect the focusOut signal to the save_text_input method
@@ -309,7 +311,13 @@ class CustomLineEdit(QPlainTextEdit):
         super().__init__()
         self.color = "white"
         self.uid = ""
-        self.setFixedHeight(100)
+        self.setFixedHeight(200)
+        self.setMinimumSize(200, 200)  # Ensuring minimum size
+        font = QFont()
+        font.setPointSize(8)  # Set minimum font size to 15
+        self.setFont(font)
+        self.setStyleSheet(f"background-color: {self.color};")
+        
 
     def wheelEvent(self, event: QWheelEvent):
         colors = ["green", "yellow", "red", "white"]
@@ -319,14 +327,27 @@ class CustomLineEdit(QPlainTextEdit):
 
     def set_color(self, color):
         self.color = color
-        if color == "green":
-            self.setStyleSheet("background-color: green;")
-        elif color == "red":
-            self.setStyleSheet("background-color: red;")
-        elif color == "yellow":
-            self.setStyleSheet("background-color: yellow;")
+        self.setStyleSheet(f"background-color: {color};")
+
+        # Adjust text color based on background color
+        if color in ["green", "red", "yellow"]:
+            text_color = "black"
         else:
-            self.setStyleSheet("background-color: white;")
+            text_color = "green"
+        
+        # Set text color and font size
+        text_cursor = self.textCursor()
+        text_cursor.select(QTextCursor.Document)
+        text_format = self._get_text_format(QColor(text_color))
+        text_format.setFontPointSize(15)  # Set font size to 15
+        text_cursor.setCharFormat(text_format)
+        text_cursor.movePosition( QTextCursor.End );
+        self.setTextCursor(text_cursor)
+
+    def _get_text_format(self, color):
+        text_format = QTextCharFormat()
+        text_format.setForeground(color)
+        return text_format
 
     def focusOutEvent(self, event):
         self.focusOut.emit()
@@ -336,6 +357,7 @@ class CustomLineEdit(QPlainTextEdit):
             self.rightClicked.emit(self.uid)
         else:
             super().mousePressEvent(event)
+
 
     def get_unread_email_count(self):
         outlook = win32com.client.Dispatch("Outlook.Application")

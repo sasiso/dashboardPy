@@ -1,3 +1,4 @@
 @echo off
 cd /d "%~dp0"
-start /B py -u "test.py"
+start /B py -m pipenv run python "test.py"
+pause
