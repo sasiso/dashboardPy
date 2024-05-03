@@ -1,3 +1,5 @@
 /dashboard.db
 /.idea/*
 /file_list.db
+/build/*
+/dist/*

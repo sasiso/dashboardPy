@@ -309,18 +309,19 @@ class CustomLineEdit(QPlainTextEdit):
 
     def __init__(self):
         super().__init__()
-        self.color = "white"
+        self.color = "black"
         self.uid = ""
         self.setFixedHeight(200)
         self.setMinimumSize(200, 200)  # Ensuring minimum size
         font = QFont()
-        font.setPointSize(8)  # Set minimum font size to 15
+        font.setPointSize(15)  # Set minimum font size to 15
         self.setFont(font)
         self.setStyleSheet(f"background-color: {self.color};")
         
+        
 
     def wheelEvent(self, event: QWheelEvent):
-        colors = ["green", "yellow", "red", "white"]
+        colors = ["green", "yellow", "red", "white","black"]
         current_color_index = colors.index(self.color)
         new_color_index = (current_color_index + 1) % len(colors)
         self.set_color(colors[new_color_index])

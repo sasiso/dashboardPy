@@ -7,6 +7,7 @@ name = "pypi"
 pytz = "*"
 pyqt5 = "*"
 pywin32 = "*"
+pyinstaller = "*"
 
 [dev-packages]
 
