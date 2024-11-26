@@ -39,10 +39,14 @@ class CustomWidget(QWidget):
     def create_button(self, name, path):
         button = QPushButton()
         button.setFixedSize(80, 80)
+        
+        # generate a random color and apply it to the button
+        button.setStyleSheet("background-color: #"+str(hex(hash(path)))[3:9])
         button.setContextMenuPolicy(Qt.CustomContextMenu)
         button.customContextMenuRequested.connect(lambda: self.show_context_menu(button, path))
 
         label = QLabel(name)
+        label.setStyleSheet("font: bold 14px;")
         label.setWordWrap(True)  # Enable text wrapping on the label
         label.setAlignment(Qt.AlignCenter)  # Center-align the text
         label.setMaximumWidth(70)  # Limit the label width
